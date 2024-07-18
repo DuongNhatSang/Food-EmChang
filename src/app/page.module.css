@@ -1,0 +1,7 @@
+
+.img-container {
+  height: 200px; /* Đặt chiều cao mong muốn cho ảnh */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
