@@ -1,6 +1,8 @@
 interface UserInformation {
     id: string;
-    treTron: number;
+    treTronX: number;
+    treTronM: number;
+    treTronL: number;
     banhChung: number;
     chaNuong: number;
     banhDauBo: number;
@@ -9,4 +11,5 @@ interface UserInformation {
     phone: string;
     note: string;
     now: string;
+    check: number;
 }

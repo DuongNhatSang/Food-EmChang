@@ -12,3 +12,8 @@
   object-fit: contain; /* Maintain aspect ratio and fit within the container */
 }
 
+.centerText th, .centerText td {
+  text-align: center;
+  vertical-align: middle;
+}
+
