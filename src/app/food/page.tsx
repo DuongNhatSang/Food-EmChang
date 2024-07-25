@@ -58,10 +58,24 @@ const SalePage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  function formatDateTime (date: Date): string {
+    const pad = (n: number) => (n < 10 ? '0' + n : n);
+
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1); // Months are 0-based in JavaScript
+    const year = date.getFullYear();
+
+    return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const currentDateTime = new Date().toLocaleString();
+    const currentDateTime = formatDateTime(new Date());
+    console.log(currentDateTime);
     try {
       await setDoc(doc(db, "customer", generateRandomNumber()), {
         treTronX: formData.treTronX,
@@ -163,7 +177,7 @@ const SalePage = () => {
                 <Col sm={8}>
                   <Row className="d-flex justify-content-between">
                     <Col xs={12} md={4} className="mb-3 mb-md-0">
-                      <Form.Label className="fw-bold fs-6">Size X</Form.Label>
+                      <Form.Label className="fw-bold fs-6">Size S</Form.Label>
                       <InputGroup>
                         <Button variant="success" onClick={() => handleDecrement('treTronX')}>-</Button>
                         <Form.Control

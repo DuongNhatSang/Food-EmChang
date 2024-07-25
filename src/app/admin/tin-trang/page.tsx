@@ -131,7 +131,7 @@ const UserManagement = () => {
                   <th>Tên</th>
                   <th>Địa chỉ</th>
                   <th>Số điện thoại</th>
-                  <th>Ghi chú cho quán</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Ghi chú cho quán</th>
                   <th>Thời gian</th>
                   <th>Tré trộn</th>
                   <th>Bánh chưng</th>
@@ -140,6 +140,7 @@ const UserManagement = () => {
                   <th>Action</th>
                 </tr>
               </thead>
+          
               <tbody>
                 {userInformations.map((user, index) => (
                   <tr key={user.id} style={{ backgroundColor: user.check === 0 ? 'lightgreen' : 'transparent' }}>
@@ -154,13 +155,13 @@ const UserManagement = () => {
                     <td>{user.name}</td>
                     <td>{user.address}</td>
                     <td>{user.phone}</td>
-                    <td>{user.note}</td>
+                    <td style={{wordBreak: 'break-word'}}>{user.note}</td>
                     <td>{user.now}</td>
                     <td>
                       <Table striped bordered hover responsive>
                         <thead>
                           <tr>
-                            <th>Size X</th>
+                            <th>Size S</th>
                             <th>Size M</th>
                             <th>Size L</th>
                           </tr>
