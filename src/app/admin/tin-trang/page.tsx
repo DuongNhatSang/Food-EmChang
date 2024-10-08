@@ -2,18 +2,87 @@
 'use client';
 
 import Table from 'react-bootstrap/Table';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
+import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { collection, query, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../public/firebaseConfig';
+import { Changa } from 'next/font/google';
 
 const UserManagement = () => {
   const [userInformations, setuserInformations] = useState<UserInformation[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [noti, setNoti] = useState('');
+  const [food, setFood] = useState<Food>({
+    id: '1',
+    treTron: true,
+    nemnuong: true,
+    chaNuong: true,
+    chanvit: true,
+    changa: true,
+    tratac: true,
+    topda: true,
+    suidin: true,
+    banhDauBo: true
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usersRef = query(collection(db, "food"));
+        const querySnapshot = await getDocs(usersRef);
+
+        querySnapshot.forEach((doc) => {
+          const fetchFood: Food = {
+            id: doc.id,
+            treTron: doc.data().treTron,
+            nemnuong: doc.data().nemnuong,
+            chaNuong: doc.data().chaNuong,
+            chanvit: doc.data().chanvit,
+            changa: doc.data().changa,
+            tratac: doc.data().tratac,
+            topda: doc.data().topda,
+            suidin: doc.data().suidin,
+            banhDauBo: doc.data().banhDauBo
+          };
+          setFood(fetchFood);
+        });
+      } catch (error) {
+        console.error("Error fetching data from Firestore:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleCheckboxChangeFood = (key: keyof Food) => {
+    setFood((prevFood) => ({
+        ...prevFood,
+        [key]: !prevFood[key]
+    }));
+    console.log(food);
+  };
+
+  const foodItems = Object.keys(food).filter(key => key !== 'id') as Array<keyof Food>;
+
+  const handleUpdateFood = async () => {
+    console.log(food);
+    try {
+      const docRef = doc(db, "food", "123"); 
+      await updateDoc(docRef, { banhDauBo: food.banhDauBo, 
+        chaNuong: food.chaNuong, 
+        changa: food.changa, 
+        chanvit: food.chanvit, 
+        nemnuong: food.nemnuong, 
+        suidin: food.suidin,
+        topda: food.topda,
+        tratac: food.tratac,
+        treTron: food.treTron });
+      alert("Update thành công");
+    } catch (error) {
+      console.error("Error updating food items: ", error);
+      alert("Error updating food items. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,8 +97,13 @@ const UserManagement = () => {
             treTronX: doc.data().treTronX,
             treTronM: doc.data().treTronM,
             treTronL: doc.data().treTronL,
-            banhChung: doc.data().banhChung,
+            nemnuong: doc.data().nemnuong,
             chaNuong: doc.data().chaNuong,
+            chanvit: doc.data().chanvit,
+            changa: doc.data().changa,
+            tratac: doc.data().tratac,
+            topda: doc.data().topda,
+            suidin: doc.data().suidin,
             banhDauBo: doc.data().banhDauBo,
             name: doc.data().name,
             address: doc.data().address,
@@ -106,6 +180,22 @@ const UserManagement = () => {
     }
   };
 
+  const handleChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setNoti(e.target.value);
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    try {
+      const userDoc = doc(db, "notication", "123");
+      await updateDoc(userDoc, { noti: noti });
+      setNoti(''); // Clear input after submission
+      alert("Update thành công!");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+
   const thStyle = {
     textAlign: 'center' as const,
     verticalAlign: 'middle' as const,
@@ -115,9 +205,50 @@ const UserManagement = () => {
       <Container>
         <Row className="my-4">
           <Col>
-            <h1>User Management</h1>
+            <h1>Cập nhật thông báo</h1>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group controlId="formBasicInput" className="d-flex align-items-center">
+                  <Form.Control
+                    type="text"
+                    value={noti}
+                    onChange={handleChange}
+                    className="me-2"
+                  />
+                  <Button variant="primary" type="submit">
+                    Update
+                  </Button>
+              </Form.Group>
+            </Form>
+          </Col>
+        </Row>
+        <Row className="my-4">
+            <Col>
+                <h1>Cập nhật các món đã hết</h1>
+                <Form>
+                  <Row>
+                    {foodItems.map((item) => (
+                        <Col xs={6} md={4} lg={3} key={item} className="mb-2">
+                            <Form.Check
+                                type="checkbox"
+                                label={item}
+                                checked={!food[item]}
+                                onChange={() => handleCheckboxChangeFood(item)}
+                            />
+                        </Col>
+                    ))}
+                  </Row>
+                  <Button variant="primary" type="button" onClick={handleUpdateFood} size="sm">
+                    Update
+                  </Button>
+                </Form>
+            </Col>
+        </Row>
+
+        <Row className="my-4">
+          <Col>
+            <h1>Thông tin đơn hàng</h1>
             <Button variant="danger" onClick={handleDeleteUsers} disabled={selectedUsers.length === 0}>
-              Delete User
+              Xóa đơn hàng
             </Button>
           </Col>
         </Row>
@@ -134,9 +265,14 @@ const UserManagement = () => {
                   <th style={{ whiteSpace: 'nowrap' }}>Ghi chú cho quán</th>
                   <th>Thời gian</th>
                   <th>Tré trộn</th>
-                  <th>Bánh chưng</th>
+                  <th>Chân vịt</th>
                   <th>Chả nướng</th>
-                  <th>Bánh đầu bò</th>
+                  <th>Bánh sừng bò</th>
+                  <th>Tóp da</th>
+                  <th>Chân gà</th>
+                  <th>Nem gân</th>
+                  <th>Sủi dìn</th>
+                  <th>Trà tắc</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -175,14 +311,23 @@ const UserManagement = () => {
                         </tbody>
                       </Table>
                     </td>
-                    <td>{user.banhChung}</td>
+                    <td>{user.chanvit}</td>
                     <td>{user.chaNuong}</td>
                     <td>{user.banhDauBo}</td>
+                    <td>{user.topda}</td>
+                    <td>{user.changa}</td>
+                    <td>{user.nemnuong}</td>
+                    <td>{user.suidin}</td>
+                    <td>{user.tratac}</td>
                     <td>
-                    <Button onClick={() => handleCheckChange(user.id)} disabled={user.check === 1}>
-                      Đã check !
-                    </Button>
-                  </td>
+                    {user.check === 1 ? (
+                        "Checked 👍" 
+                      ) : (
+                        <Button onClick={() => handleCheckChange(user.id)} disabled={user.check === 1}>
+                          check!
+                        </Button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

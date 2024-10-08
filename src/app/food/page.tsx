@@ -2,15 +2,89 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Image from 'react-bootstrap/Image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import '@/styles/food.css';
 import { db } from '../../../public/firebaseConfig';
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc, getDocs, collection, query } from "firebase/firestore"; 
 import { useRouter } from 'next/navigation';
 
+
 const SalePage = () => {  
+  const [colorIndex, setColorIndex] = useState(0);
+  const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+  const [food, setFood] = useState<Food>({
+    id: '1',
+    treTron: true,
+    nemnuong: true,
+    chaNuong: true,
+    chanvit: true,
+    changa: true,
+    tratac: true,
+    topda: true,
+    suidin: true,
+    banhDauBo: true
+  });
+  const [noti, setNoti] = useState<string>("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setColorIndex((prevIndex) => (prevIndex + 1) % colors.length);
+    }, 200);
+
+    return () => clearInterval(interval); // Dọn dẹp interval khi component unmount
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usersRef = query(collection(db, "food"));
+        const querySnapshot = await getDocs(usersRef);
+
+        querySnapshot.forEach((doc) => {
+          const fetchFood: Food = {
+            id: doc.id,
+            treTron: doc.data().treTron,
+            nemnuong: doc.data().nemnuong,
+            chaNuong: doc.data().chaNuong,
+            chanvit: doc.data().chanvit,
+            changa: doc.data().changa,
+            tratac: doc.data().tratac,
+            topda: doc.data().topda,
+            suidin: doc.data().suidin,
+            banhDauBo: doc.data().banhDauBo
+          };
+          console.log(fetchFood);
+          setFood(fetchFood);
+          console.log(food);
+        });
+
+      } catch (error) {
+        console.error("Error fetching data from Firestore:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usersRef = query(collection(db, "notication"));
+        const querySnapshot = await getDocs(usersRef);
+
+        querySnapshot.forEach((doc) => {
+          setNoti(doc.data().noti)
+        });
+
+      } catch (error) {
+        console.error("Error fetching data from Firestore:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+
   const router = useRouter();
 
   const [formData, setFormData] = useState<UserInformation>({
@@ -18,8 +92,13 @@ const SalePage = () => {
     treTronX: 0,
     treTronM: 0,
     treTronL: 0,
-    banhChung: 0,
+    nemnuong: 0,
     chaNuong: 0,
+    chanvit: 0,
+    changa: 0,
+    tratac: 0,
+    topda: 0,
+    suidin: 0,
     banhDauBo: 0,
     name: '',
     address: '',
@@ -81,8 +160,13 @@ const SalePage = () => {
         treTronX: formData.treTronX,
         treTronM: formData.treTronM,
         treTronL: formData.treTronL,
-        banhChung: formData.banhChung,
+        nemnuong: formData.nemnuong,
         chaNuong: formData.chaNuong,
+        chanvit: formData.chanvit,
+        changa: formData.changa,
+        tratac: formData.tratac,
+        topda: formData.topda,
+        suidin: formData.suidin,
         banhDauBo: formData.banhDauBo,
         name: formData.name,
         address: formData.address,
@@ -103,71 +187,138 @@ const SalePage = () => {
   return (
     <Container fluid style={{ backgroundImage: `url("/images/6_1_n.jpg")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', padding: '2rem' }}>
       <div className="header text-center">
-        <Image src="/images/5_n.jpg" fluid className="w-100"/>;
-        <h1>Tín Bán Tré =))))</h1>
+        <Image src="/images/anhbia.png" fluid className="w-100"/>
       </div>
       <div className="body">
         <Row className="mt-5">
           <Col xs={3}></Col>
           <Col xs={6} className="text-center">
-            <h2>Menu</h2>
+            <h3 style={{ color: colors[colorIndex] }}>{noti}</h3>
+          </Col>
+          <Col xs={3}></Col>
+        </Row>
+        <Row className="mt-5">
+          <Col xs={3}></Col>
+          <Col xs={6} className="text-center">
+            <h1>Menu</h1>
           </Col>
           <Col xs={3}></Col>
         </Row>
         <Row className="justify-content-center">
           <Col xs={12} sm={6} md={4} lg={3}>
             <Card style={{ width: '100%' }}>
-              <Card.Img variant="top" src="/images/1_n.jpg" style={{ height: '300px', objectFit: 'cover' }} />
-              <Card.Body>
+              <Card.Img variant="top" src="/images/1_n.jpg" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body  className="text-center">
                 <Card.Title>Tré trộn</Card.Title>
                 <Card.Text>
-                  Some quick example text to build on the card title and make up the
-                  bulk of the cards content.
+                  <h5>Size S-M-L: 50k-75k-100k {food.treTron === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
                 </Card.Text>
               </Card.Body>
             </Card>
           </Col>
           <Col xs={12} sm={6} md={4} lg={3}>
             <Card style={{ width: '100%' }}>
-              <Card.Img variant="top" src="/images/2_n.jpg" style={{ height: '300px', objectFit: 'cover' }} />
-              <Card.Body>
-                <Card.Title>Bánh Chưng</Card.Title>
+              <Card.Img variant="top" src="/images/chanvit1.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Chân vịt rút xương sốt Thái must try</Card.Title>
                 <Card.Text>
-                  Some quick example text to build on the card title and make up the
-                  bulk of the cards content.
+                  <h5>70k/Phần {food.chanvit === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
                 </Card.Text>
               </Card.Body>
             </Card>
           </Col>
           <Col xs={12} sm={6} md={4} lg={3}>
             <Card style={{ width: '100%' }}>
-              <Card.Img variant="top" src="/images/3_n.jpg" style={{ height: '300px', objectFit: 'cover' }} />
-              <Card.Body>
-                <Card.Title>Chả nướng</Card.Title>
+              <Card.Img variant="top" src="/images/chanuong.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Chả nướng ống tre Huế</Card.Title>
                 <Card.Text>
-                  Some quick example text to build on the card title and make up the
-                  bulk of the cards content.
+                  <h5>55k/Phần {food.chaNuong === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
                 </Card.Text>
               </Card.Body>
             </Card>
           </Col>
           <Col xs={12} sm={6} md={4} lg={3}>
             <Card style={{ width: '100%' }}>
-              <Card.Img variant="top" src="/images/4_n.jpg" style={{ height: '300px', objectFit: 'cover' }} />
-              <Card.Body>
-                <Card.Title>Bánh đầu bò</Card.Title>
+              <Card.Img variant="top" src="/images/4_n.jpg" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Bánh sừng bò</Card.Title>
                 <Card.Text>
-                  Some quick example text to build on the card title and make up the
-                  bulk of the cards content.
+                  <h5>45k/2 Bánh mix vị {food.banhDauBo === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
                 </Card.Text>
               </Card.Body>
             </Card>
           </Col>
         </Row>
-        <Row className="mt-4">
+
+
+        <Row className="justify-content-center mt-4">
+          <Col xs={12} sm={6} md={4} lg={3}>
+            <Card style={{ width: '100%' }}>
+              <Card.Img variant="top" src="/images/topda.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Tóp da Huế</Card.Title>
+                <Card.Text>
+                  <h5>25k/Phần {food.topda === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={12} sm={6} md={4} lg={3}>
+            <Card style={{ width: '100%' }}>
+              <Card.Img variant="top" src="/images/changa.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Chân gà rút xương sốt Thái</Card.Title>
+                <Card.Text>
+                  <h5>60k/Phần {food.changa === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={12} sm={6} md={4} lg={3}>
+            <Card style={{ width: '100%' }}>
+              <Card.Img variant="top" src="/images/nemgan.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Nem gân Huế nướng</Card.Title>
+                <Card.Text>
+                  <h5>70k/Phần {food.nemnuong === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={12} sm={6} md={4} lg={3}>
+            <Card style={{ width: '100%' }}>
+              <Card.Img variant="top" src="/images/suidin.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body  className="text-center">
+                <Card.Title>Sủi dìn {food.suidin === false && <span style={{ color: 'red' }}>(Hết món)</span>}</Card.Title>
+                <Card.Text>
+                  <h5>65k/10 Viên</h5>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+
+        <Row className="justify-content-center mt-4">
+          <Col xs={12} sm={6} md={4} lg={3}>
+            <Card style={{ width: '100%' }}>
+              <Card.Img variant="top" src="/images/nuoc.png" style={{ height: '350px', objectFit: 'cover' }} />
+              <Card.Body className="text-center">
+                <Card.Title>Trà tắc thái xanh</Card.Title>
+                <Card.Text>
+                  <h5>20k/Ly {food.tratac === false && <span style={{ color: 'red' }}>(Hết món)</span>}</h5>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+
+        <Row className="mt-5">
           <Col xs={3}></Col>
           <Col xs={6}>
-            <h3 className="text-center">Chọn số lượng và thông tin địa chỉ</h3>
+            <h1 className="text-center">Chọn số lượng và thông tin địa chỉ</h1>
             <Form onSubmit={handleSubmit}>
 
               <Form.Group as={Row} className="mb-3">
@@ -228,18 +379,28 @@ const SalePage = () => {
                 </Col>
               </Form.Group>
 
-              {['banhChung', 'chaNuong', 'banhDauBo'].map((item) => (
+              {['chanvit', 'chaNuong', 'banhDauBo', 'topda', 'changa', 'nemnuong', 'suidin', 'tratac'].map((item) => (
                 <Form.Group as={Row} className="mb-3" key={item}>
                   <Form.Label column sm={4} className="fw-bold fs-5">
-                    {item === 'banhChung'
-                      ? 'Bánh Chưng (1 cặp):'
+                    {item === 'chanvit'
+                      ? 'Chân vịt rút xương sốt Thái:'
                       : item === 'chaNuong'
-                      ? 'Chả Nướng:'
-                      : 'Bánh đầu bò:'}
+                      ? 'Chả nướng ống tre Huế:'
+                      : item === 'banhDauBo'
+                      ? 'Bánh sừng bò:'
+                      : item === 'topda'
+                      ? 'Tóp da Huế:'
+                      : item === 'changa'
+                      ? 'Chân gà rút xương sốt Thái:'
+                      : item === 'nemnuong'
+                      ? 'Nem gân Huế nướng:'
+                      : item === 'suidin'
+                      ? 'Sủi dìn:'
+                      : 'Trà tắc thái xanh:'}
                   </Form.Label>
                   <Col sm={8}>
                     <InputGroup>
-                      <Button variant="success" onClick={() => handleDecrement(item as keyof UserInformation)}>
+                      <Button variant="success" onClick={() => handleDecrement(item as keyof UserInformation)} disabled={!food[item as keyof Food]}>
                         -
                       </Button>
                       <Form.Control
@@ -251,7 +412,7 @@ const SalePage = () => {
                         readOnly
                         style={{ textAlign: 'center', maxWidth: '70px' }}
                       />
-                      <Button variant="success" onClick={() => handleIncrement(item as keyof UserInformation)}>
+                      <Button variant="success" onClick={() => handleIncrement(item as keyof UserInformation)} disabled={!food[item as keyof Food]}>
                         +
                       </Button>
                     </InputGroup>
